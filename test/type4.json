@@ -1,0 +1,14 @@
+[
+	{
+		"role": "system",
+		"content": "You are an AI assistant that helps people find information."
+	},
+	{
+		"role": "user",
+		"content": "hi"
+	},
+	{
+		"role": "assistant",
+		"content": "Hello! How can I help you find information today? If you have any questions, feel free to ask."
+	}
+]
