@@ -1,0 +1,22 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are an AI assistant that helps people find information."
+    },
+    {
+      "role": "user",
+      "content": "bat 查询e盘目录文件列表"
+    },
+    {
+      "role": "assistant",
+      "content": "抱歉，作为 AI 语言模型，我没有访问实际计算机文件系统的能力。但是，您可以在命令行中使用“dir E:”命令来查询 E 盘的文件列表。"
+    }
+  ],
+  "temperature": 0.7,
+  "top_p": 0.95,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "max_tokens": 800,
+  "stop": null
+}

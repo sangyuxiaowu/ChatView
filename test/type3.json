@@ -1,0 +1,22 @@
+{
+    "RECORDS": [
+        {
+            "id": "2d4686e0350d4884acd1311b60f487d7",
+            "chat_type": "knowledge_base_chat",
+            "query": "你好",
+            "response": "你好，有什么可以帮您的？",
+            "feedback_score": "-1",
+            "feedback_reason": "",
+            "create_time": "22/11/2023 23:50:06"
+        },
+        {
+            "id": "7d0b2b1e62b04b759d70804f9d504dae",
+            "chat_type": "knowledge_base_chat",
+            "query": "你好",
+            "response": "您好，有什么问题我可以帮您解答吗？",
+            "feedback_score": "-1",
+            "feedback_reason": "",
+            "create_time": "22/11/2023 23:44:03"
+        }
+    ]
+}

@@ -1,0 +1,13 @@
+[
+  {
+    "isAI": false,
+    "text": "请帮我看看这个认证的中间件是否有优化的地方，请给出建议：",
+    "isError": null,
+    "attachments": null
+  },
+  {
+    "isAI": true,
+    "text": "这个中间件代码看起来已经很不错了。但是，我有一些建议可以帮助优化这段代码：",
+    "pluginsMetadata": []
+  }
+]

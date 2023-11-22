@@ -1,0 +1,204 @@
+<html lang="en">
+
+<head>
+    <title>ChatView</title>
+    <meta charset="utf-8" />
+    <meta name="description" content="Chat" />
+    <link href="lib/jsoneditor.min.css" rel="stylesheet" type="text/css">
+    <script src="lib/jsoneditor.min.js"></script>
+    <script src="lib/marked.min.js"></script>
+    <link rel="stylesheet" href="lib/app.css">
+    <script src="lib/highlight.min.js"></script>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="left">
+            <div id="jsoneditor"></div>
+        </div>
+        <div class="right">
+            <div class="title">对话记录
+                <button class="share" onclick="makeShare()">分享</button>
+            </div>
+            <div class="content">
+                <ul class="chat" id="chat">
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+
+    <script>
+
+        const container = document.getElementById("jsoneditor");
+
+        const options = {
+            mode: 'code',
+            modes: ['code', 'form'],
+            history: false,
+            onChangeText: function (jsonString) {
+                console.log('Text changed', jsonString);
+                loadChat(jsonString);
+            }
+        };
+        const editor = new JSONEditor(container, options)
+        //editor.set(chatjson);
+
+        // 设置marked的highlight选项
+        marked.setOptions({
+            highlight: function (code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    return hljs.highlight(code, { language: lang }).value;
+                }
+                return hljs.highlightAuto(code).value;
+            }
+        });
+
+        // 使用JS接口读取目录文件内容 FileSystemDirectoryHandle
+        let dirData;
+        async function getList() {
+            dirData = await window.showDirectoryPicker();
+            for await (const it of dirData.values()) {
+                console.log(it);
+                console.log("[[ %s ]] is %s", it.name, it.kind);
+                let a = await it.getFile();
+                console.log(a);
+                //this.infolist.push(it);
+                //let item = document.createElement("li");
+                //item.textContent = it.kind + "\t\t\t【" + it.name+"】";
+                //list.appendChild(item);
+            }
+        }
+
+        function makeShare() {  
+            // 获取#chat元素的内容  
+            var chatContent = document.getElementById('chat').outerHTML;  
+            
+            // 获取当前页面的所有<style>和<link>元素  
+            var styles = document.querySelectorAll('style, link[rel="stylesheet"]');  
+            
+            // 创建一个新的窗口  
+            var printWindow = window.open('', '_blank');  
+            
+            // 在新窗口的文档中添加样式  
+            printWindow.document.write('<html><head><title>Print</title>');  
+            for (var i = 0; i < styles.length; i++) {  
+                printWindow.document.write(styles[i].outerHTML);  
+            }  
+            printWindow.document.write('</head><body>');  
+            
+            // 将#chat元素的内容添加到新窗口的文档中  
+            printWindow.document.write(chatContent);  
+            
+            // 关闭新窗口的文档流，以便可以操作它  
+            printWindow.document.write('</body></html>');  
+            printWindow.document.close();  
+
+            // 等待渲染
+            setTimeout(function(){
+                // 调用新窗口的打印功能  
+                printWindow.print();  
+                
+                // 关闭新窗口  
+                printWindow.close();  
+            }, 1000);
+
+        }  
+
+
+
+
+
+        // get json
+        //const updatedJson = editor.get();
+
+        function loadChat(chatjson) {
+            const chat = JSON.parse(chatjson);
+
+            const chatList = document.querySelector('#chat');
+            chatList.innerHTML = '';
+
+            // 如果 chat 含有 messages 属性，则遍历 messages 属性
+            if( chat.messages instanceof Array && chat.messages.length > 0 && chat.messages[0].role && chat.messages[0].content ){
+                chat.messages.forEach(({ role, content }) => {
+                    //生成 <li class="bot"><div class="message">Hello!</div></li ><li class="me"><div class="message">Hi there!</div></li>
+                    const listItem = document.createElement('li');
+                    listItem.classList.add(role == 'user' ? 'me' : 'bot');
+
+                    const messageDiv = document.createElement('div');
+                    messageDiv.classList.add('message');
+                    messageDiv.innerHTML = role == 'user' ? "<pre>"+content+"</pre>": marked.parse(content);
+                    messageDiv.dataset.content = content;
+                    messageDiv.addEventListener('dblclick', function () {
+                        // 复制 content 内容
+                        navigator.clipboard.writeText(this.dataset.content)
+                            .then(function () {
+                                console.log('Content copied to clipboard');
+                            })
+                            .catch(function (err) {
+                                console.error('Failed to copy: ', err);
+                            });
+
+                    });
+
+                    listItem.appendChild(messageDiv);
+                    chatList.appendChild(listItem);
+                });
+
+            }
+            
+            if(chat instanceof Array && chat.length > 0 && chat[0].text){
+                chat.forEach(({ isAI, text }) => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add(isAI ? 'bot' : 'me');
+    
+                    const messageDiv = document.createElement('div');
+                    messageDiv.classList.add('message');
+                    messageDiv.innerHTML = isAI ? marked.parse(text):"<pre>"+text+"</pre>";
+                    messageDiv.dataset.content = text;
+                    messageDiv.addEventListener('dblclick', function () {
+                        // 复制 content 内容
+                        navigator.clipboard.writeText(this.dataset.content)
+                            .then(function () {
+                                console.log('Content copied to clipboard');
+                            })
+                            .catch(function (err) {
+                                console.error('Failed to copy: ', err);
+                            });
+    
+                    });
+    
+                    listItem.appendChild(messageDiv);
+                    chatList.appendChild(listItem);
+                });
+            }
+        }
+
+        // 接收文件拖拽并读取文件内容
+        container.addEventListener("dragenter", function(e){
+			e.stopPropagation();
+			e.preventDefault();
+		}, false);
+		
+		container.addEventListener("dragover", function(e){
+			e.stopPropagation();
+			e.preventDefault();
+		}, false)
+        container.addEventListener("drop", function(e){
+            e.stopPropagation();
+			e.preventDefault();
+            let dataTransfer = e.dataTransfer;
+            let fileData = dataTransfer.files[0];
+            let reader = new FileReader();
+            reader.readAsText(fileData, 'utf-8');
+            reader.onload = function (e) {
+                let chatjson = e.target.result;
+                editor.set(JSON.parse(chatjson));
+                loadChat(chatjson)
+            }
+        },false);
+
+    </script>
+</body>
+
+</html>
